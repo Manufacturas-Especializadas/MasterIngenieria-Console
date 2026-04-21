@@ -10,13 +10,13 @@ namespace Core.Entities
     {
         public int Id { get; set; }
 
-        public string ParentPartNumber { get; set; } = null!;
+        public string? ParentPartNumber { get; set; } = null!;
 
         public int Line { get; set; }
 
-        public decimal OldCycleTime { get; set; }
+        public decimal? OldCycleTime { get; set; }
 
-        public decimal NewCycleTime { get; set; }
+        public decimal? NewCycleTime { get; set; }
 
         public DateTime ImprovementDate { get; set; }
 
@@ -24,6 +24,6 @@ namespace Core.Entities
 
         public string? Description { get; set; }
 
-        public decimal TimeSaved => OldCycleTime - NewCycleTime;
+        public decimal? TimeSaved => OldCycleTime - NewCycleTime;
     }
 }
