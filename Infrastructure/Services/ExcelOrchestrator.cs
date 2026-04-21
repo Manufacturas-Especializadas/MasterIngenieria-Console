@@ -33,6 +33,9 @@ namespace Infrastructure.Services
                 var key = $"{excelRow.ParentPartNumber}|{excelRow.ChildPartNumber}";
                 var existingRecords = dbData[key];
 
+                TimeZoneInfo mexicoTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)");
+                DateTime nowInMexico = TimeZoneInfo.ConvertTime(DateTime.UtcNow, mexicoTimeZone);
+
                 if (!existingRecords.Any())
                 {
                     newRecords.Add(MapToEntity(excelRow));
@@ -50,7 +53,7 @@ namespace Infrastructure.Services
                                 Line = existingRecord.Line!.Value,
                                 OldCycleTime = existingRecord.TCiclo.Value,
                                 NewCycleTime = excelRow.TCiclo.Value,
-                                ImprovementDate = DateTime.Now,
+                                ImprovementDate = nowInMexico,
                                 Process = existingRecord.Operation,
                                 Description = "Mejora detectada mediante actualización de Master"
                             });
