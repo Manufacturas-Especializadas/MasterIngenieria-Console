@@ -50,11 +50,11 @@ namespace Infrastructure.Services
                             improvements.Add(new MasterImprovement
                             {
                                 ParentPartNumber = existingRecord.ParentPartNumber ?? "N/A",
-                                Line = existingRecord.Line!.Value,
-                                OldCycleTime = existingRecord.TCiclo.Value,
-                                NewCycleTime = excelRow.TCiclo.Value,
+                                Line = existingRecord.Line ?? 0,
+                                OldCycleTime = existingRecord.TCiclo ?? 0,
+                                NewCycleTime = excelRow.TCiclo ?? 0,
                                 ImprovementDate = nowInMexico,
-                                Process = existingRecord.Operation,
+                                Process = existingRecord.Operation ?? "N/A",
                                 Description = "Mejora detectada mediante actualización de Master"
                             });
                         }
