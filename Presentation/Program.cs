@@ -15,9 +15,10 @@ using (var scope = host.Services.CreateScope())
 {
     var orchestrator = scope.ServiceProvider.GetRequiredService<ExcelOrchestrator>();
 
-    string path = @"\\192.168.25.54\Ing Industrial\Master de Ingeniería.xlsx";
+    string pathProduction = @"\\192.168.25.54\Ing Industrial\Master de Ingeniería.xlsx";
+    string pathDevelopment = @"\\192.168.25.54\usuarios2\A&T\Master de Ingeniería.xlsx";
 
-    await orchestrator.RunAsync(path);
+    await orchestrator.RunAsync(pathProduction);
 }
 
 await host.RunAsync();
