@@ -20,18 +20,17 @@ namespace Infrastructure.Services
         public async Task RunAsync(string filePath)
         {
             var excelData = _excelReader.ReadExcel(filePath).ToList();
-
             var dbData = _context.Masters
                 .AsTracking()
                 .ToLookup(m => $"{m.ParentPartNumber}|{m.ChildPartNumber}");
 
             var newRecords = new List<Master>();
+            var improvements = new List<MasterImprovement>();
             var updatedRecordsCount = 0;
 
             foreach (var excelRow in excelData)
             {
                 var key = $"{excelRow.ParentPartNumber}|{excelRow.ChildPartNumber}";
-
                 var existingRecords = dbData[key];
 
                 if (!existingRecords.Any())
@@ -42,31 +41,42 @@ namespace Infrastructure.Services
                 {
                     foreach (var existingRecord in existingRecords)
                     {
+                        if (excelRow.TCiclo.HasValue && existingRecord.TCiclo.HasValue &&
+                            excelRow.TCiclo < existingRecord.TCiclo)
+                        {
+                            improvements.Add(new MasterImprovement
+                            {
+                                ParentPartNumber = existingRecord.ParentPartNumber ?? "N/A",
+                                Line = existingRecord.Line!.Value,
+                                OldCycleTime = existingRecord.TCiclo.Value,
+                                NewCycleTime = excelRow.TCiclo.Value,
+                                ImprovementDate = DateTime.Now,
+                                Process = existingRecord.Operation,
+                                Description = "Mejora detectada mediante actualización de Master"
+                            });
+                        }
+
                         if (HasChanged(existingRecord, excelRow))
                         {
-                            Console.WriteLine($"Actualizando Id: {existingRecord.Id}");
                             UpdateEntity(existingRecord, excelRow);
                             updatedRecordsCount++;
                         }
                     }
                 }
-
             }
 
-            if (newRecords.Any())
+            if (newRecords.Any()) await _context.Masters.AddRangeAsync(newRecords);
+
+            if (improvements.Any())
             {
-                await _context.Masters.AddRangeAsync(newRecords);
-                Console.WriteLine($"[NUEVOS] {newRecords.Count} registros detectados.");
+                await _context.MasterImprovements.AddRangeAsync(improvements);
+                Console.WriteLine($"[MEJORAS] Se detectaron {improvements.Count} optimizaciones de tiempo.");
             }
 
-            if (updatedRecordsCount > 0 || newRecords.Any())
+            if (updatedRecordsCount > 0 || newRecords.Any() || improvements.Any())
             {
                 await _context.SaveChangesAsync();
-                Console.WriteLine($"[CAMBIOS] {updatedRecordsCount} registros actualizados en la base de datos.");
-            }
-            else
-            {
-                Console.WriteLine(">>> El sistema ya está actualizado. No se detectaron cambios.");
+                Console.WriteLine($"[OK] Proceso terminado exitosamente.");
             }
         }
 
