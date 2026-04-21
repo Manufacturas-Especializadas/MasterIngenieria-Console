@@ -14,6 +14,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Master> Masters { get; set; }
 
+    public virtual DbSet<MasterImprovement> MasterImprovements { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Master>(entity =>
@@ -101,6 +103,15 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.WallThickness)
                 .IsUnicode(false)
                 .HasColumnName("wallThickness");
+        });
+
+        modelBuilder.Entity<MasterImprovement>(entity =>
+        {
+            entity.ToTable("MasterImprovements");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.OldCycleTime).HasColumnType("decimal(10, 3)");
+            entity.Property(e => e.NewCycleTime).HasColumnType("decimal(10, 3)");
+            entity.Property(e => e.ImprovementDate).HasDefaultValueSql("(getdate())");
         });
 
         OnModelCreatingPartial(modelBuilder);
