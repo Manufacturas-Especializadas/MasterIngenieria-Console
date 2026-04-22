@@ -21,7 +21,15 @@ namespace Infrastructure.Common.Extension
 
         public static string GetValueOrEmptyString(this IXLCell cell)
         {
-            return cell.IsEmpty() ? string.Empty : cell.GetValue<string>().Trim();
+            if (cell.IsEmpty()) return string.Empty;
+          
+            if (cell.DataType == XLDataType.Number)
+            {
+                var numericValue = cell.GetValue<double>();
+                return numericValue.ToString(System.Globalization.CultureInfo.InvariantCulture).Trim();
+            }
+
+            return cell.GetValue<string>().Trim();
         }
 
     }
